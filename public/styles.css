@@ -1,0 +1,120 @@
+@font-face {
+  font-family: "KatalesBroken";
+  src: url("/Katales-Broken.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+body{
+    margin: 0;
+    padding: 0;
+    background-color: #f9faf4;
+    font-family: "KatalesBroken";
+}
+header img{
+    margin: 0;
+    width: clamp(70px, 12vw, 140px);
+}
+#brand{
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    gap: 16px;
+}
+header{
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fef9c8;
+    gap: 10px;
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+header a{
+    color: #375c66;
+    text-decoration: none;
+    font-size: 50px;
+    font-size: clamp(25px, 3vw, 50px); 
+}
+header nav{
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+nav ul{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+nav ul a{
+    color: #375c66;
+    text-decoration: none;
+    font-size: 20px;
+}
+nav ul a:hover{
+    transition: 0.3s;
+    color: #ED401C;
+    text-shadow:2px 2px 4px rgba(0,0,0,0.4);
+}
+footer{
+    background-color: #fef9c8;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+footer h3, footer p{
+    margin: 10px;
+}
+main #homepage{
+    background-color: #ED401C;
+    margin: 0;
+}
+main #homepage h1,
+main #homepage a{
+    text-decoration: none;
+    font-size: clamp(50px,20vw,100px);
+    color: #fef9c8;
+    flex: 1;
+    text-align: center;
+    text-shadow:2px 2px 4px rgba(0,0,0,0.4);
+
+}
+.homepage-content{
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+}
+.homepage-content p{
+    color: #375c66;
+    font-size: 20px;
+}
+
+#homepage img{
+    max-width: 600px;;
+    height: auto;
+    display: block;
+    height: auto;
+}
+#about{
+    color: #fef9c8;
+    background-color: #ED401C;
+    padding: 5rem 10rem;
+}
+#about p{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: justify;
+    line-height: 1.5;
+}
+
+

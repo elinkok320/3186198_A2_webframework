@@ -1,0 +1,231 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { supabase } from "../lib/supabaseAuth";
+
+let errorMsg = "";
+---
+
+<Layout title="Account">
+
+    <div id="account-admin">
+      <p id="logged-out-msg"></p>
+      <div id="account-content">
+        <button id="logout-btn" type="button">Logout</button>
+
+        <h2>Manage Account</h2>
+
+        <p id="current-email" style="font-size: 20px;"></p>
+
+        <div id="account-form">
+            <form id="email-form">
+                <label for="new-email">New Email</label>
+                <input id="new-email" name="newEmail" type="email" required />
+                <button type="submit">Change Email</button>
+            </form>
+
+            <form id="password-form">
+                <label for="new-password">New Password</label>
+                <input id="new-password" name="newPassword" type="password" minlength="6" required />
+                <button type="submit">Change Password</button>
+            </form>
+        </div>
+
+            <p id="account-msg"></p>
+
+      </div>
+    </div>
+
+    <style>
+        #account-admin{
+            background-color: #ed401c;
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+            color: #fef9c8;
+            display: flex;
+            flex-flow: column wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            text-align: center; 
+            max-height: 100vh;
+        }
+        #account-admin h2{
+            font-size: 50px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+        }
+        #account-content{
+          opacity: 0;
+          transform: translateY(20px);
+          animation: fadeIn 2s ease forwards;
+        }
+          @keyframes fadeIn {
+              to {
+              opacity: 1;
+              transform: translateY(0);
+              }
+          }
+  
+        #account-form{
+            display: flex;
+            flex-flow: column wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+        #account-form form button{
+            padding: 1rem;
+            max-width: 100%;
+            min-width: 20px;
+            font-size: 15px;
+        }
+        form{
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        form label{
+            font-size: 25px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);;
+        }
+        form input{
+            background-color: #fef9c8;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            border: solid 4px #375c66;
+            max-width: 100%;
+            min-width: 300px;
+            font-size: 25px;
+            font-family: "KatalesBroken";
+            color: #ed401c;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.35);
+        }
+        button{
+            background-color: #fef9c8;
+            border: solid 2px #fef9c8;
+            border-radius: 5px;
+            font-size: 15px;
+            font-family:"KatalesBroken" ;
+            color: #ed401c;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.35);
+            padding: 1rem 3rem;
+        }
+        button:hover{
+            transition: 0.2s;
+            transform: rotate(5deg) scale(1.5);
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            border: solid 2px #375c66;
+            font-size: 40px;
+            max-width: 100%;
+            min-width: 80px;
+        }
+        #account-msg{
+            font-size: 18px;
+            font-family: "KatalesBroken";
+            color: #fef9c8;
+        }
+
+
+    </style>
+
+</Layout>
+
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+  const supabase = createClient(
+    "https://xarsycpiqgviqkxyodbv.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhcnN5Y3BpcWd2aXFreHlvZGJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NDk5NDksImV4cCI6MjA4MzAyNTk0OX0.Oppyl8Oz3RrPAHdjjZkGV8SX-m1GdGOgga9KqPRNySI"
+  );
+
+  const currentEmailEl = document.getElementById("current-email");
+  const msgEl = document.getElementById("account-msg");
+
+  const emailForm = document.getElementById("email-form");
+  const passwordForm = document.getElementById("password-form");
+  const logoutBtn = document.getElementById("logout-btn");
+
+  function setMsg(text, isError = false) {
+    if (!msgEl) return;
+    msgEl.textContent = text;
+    msgEl.style.color = isError ? "crimson" : "inherit";
+  }
+
+  function clearMsg() {
+    if (!msgEl) return;
+    msgEl.textContent = "";
+  }
+
+  async function init() {
+    const { data } = await supabase.auth.getSession();
+    const session = data.session;
+
+    if (session && currentEmailEl) {
+      currentEmailEl.textContent = `Logged in as: ${session.user.email}`;
+    }
+
+    if (!session && currentEmailEl) {
+      currentEmailEl.textContent = "You're not a CHILLI PADI now";
+    }
+  }
+
+  emailForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearMsg();
+
+    const newEmail = emailForm.newEmail.value.trim();
+    if (!newEmail) {
+      setMsg("Please enter a new email", true);
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ email: newEmail });
+    if (error) {
+      setMsg(error.message, true);
+      return;
+    }
+
+    setMsg("Email update requested. Check your inbox.");
+    emailForm.reset();
+  });
+
+  passwordForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearMsg();
+
+    const newPassword = passwordForm.newPassword.value;
+    if (newPassword.length < 6) {
+      setMsg("Password must be at least 6 characters", true);
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      setMsg(error.message, true);
+      return;
+    }
+
+    setMsg("Password updated.");
+    passwordForm.reset();
+  });
+
+  logoutBtn?.addEventListener("click", async () => {
+    clearMsg();
+
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setMsg("Logout failed: " + error.message, true);
+      return;
+    }
+
+    alert("Byeeeee Chilli Padi");
+
+    if (currentEmailEl) {
+      currentEmailEl.textContent = "You're not a CHILLI PADI now";
+    }
+  });
+
+  await init();
+</script>

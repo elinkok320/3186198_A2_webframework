@@ -1,0 +1,294 @@
+---
+export const prerender = false;
+
+import Layout from "../../layouts/Layout.astro";
+import { supabase } from "../../lib/supabaseAuth.js";
+
+const { id } = Astro.params;
+
+const { data: post, error } = await supabase
+  .from("post_blog")
+  .select("id, title, cover_image, date, excerpt, content")
+  .eq("id", id)
+  .single();
+
+const { data: latestComments, error: commentsError } = await supabase
+  .from("comments")
+  .select("id, content, created_at")
+  .eq("post_id", id)
+  .order("created_at", { ascending: false })
+  .limit(5);
+
+---
+
+<Layout title={post ? post.title : "Blog"}>
+
+    {error || !post ? (
+
+      <div style="padding:40px; color:white;">
+        <h1>Post not found</h1>
+        <p>{error ? error.message : "No data returned."}</p>
+        <a href="/blog" style="color:#fef9c8;">← Back to blog</a>
+      </div>
+    ) : 
+    
+    (
+    <article class="post-wrap">
+
+        <h1 class="post-title">{post.title}</h1>
+
+        <p class="post-excerpt">{post.excerpt}</p>
+
+        {post.cover_image && (
+          <img class="post-img" src={post.cover_image} alt={post.title} />
+        )}
+          <p class="post-date">{post.date}</p>
+
+          <div class="post-content">{post.content}</div>
+
+          <a class="back" href="/blog">← Back</a>
+
+          <div class="comments">
+              <h2 class="comments-title">Comments</h2>
+              <form class="comment-form" data-post-id={post.id}>
+                <textarea name="content" rows="4" required placeholder="Write your comment to water the Chilli Plant"></textarea>
+                <button type="submit">Submit</button>
+              </form>
+          </div>
+
+          {commentsError ? (
+          <p>Failed to load comments.</p>
+        ) : (
+          <div class="comment-list">
+            {latestComments?.length ? (
+              latestComments.map((c) => (
+
+                <div class="comment-item">
+                  <p class="comment-content">{c.content}</p>
+                  <p class="comment-meta">
+                    {c.created_at ? new Date(c.created_at).toLocaleString() : ""}
+                  </p>
+                </div>
+
+              ))
+            ) : (
+              <p class="comment-empty"></p>
+            )}
+          </div>
+)}
+
+    </article>
+  )}
+
+  <style>
+      .post-wrap{
+        margin:0;
+        background-color: #ed401c;
+        padding: 2rem 3rem;
+        color: #fef9c8;
+        text-align: justify;
+        display: flex;
+        flex-flow: column wrap;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .post-wrap p{
+        margin: 10px;
+      }
+
+      .post-title{
+        font-family: "KatalesBroken";
+        font-size: 54px;
+        margin: 0 0 10px;
+      }
+
+      .post-date{
+        font-family: "KatalesBroken";
+        margin: 0 0 18px;
+        opacity: 0.95;
+      }
+
+      .post-img{
+        width: min(500px, 100%);
+        border-radius: 10px;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.35);
+        margin: 10px auto 18px;
+        display: block;
+      }
+
+      .post-excerpt{
+        font-family: "KatalesBroken";
+        font-size: 22px;
+        margin: 0 0 18px;
+      }
+
+      .post-content{
+        width: min(900px,100%);
+        font-family: Trebuchet MS;
+        text-align: justify;
+        font-size: 18px;
+        line-height: 1.7;
+        margin-top: 10px;
+        white-space: pre-wrap;
+      }
+
+      .back{
+        display: inline-block;
+        margin-top: 2rem;
+        color: #fef9c8;
+        text-decoration: none;
+        font-family: "KatalesBroken";
+        font-size: 20px;
+      }
+
+      .back:hover{
+        transition: 0.5s ease;
+        color: #375c66;
+      }
+
+      textarea{
+        background-color: #ed401c;
+        border-radius: 10px;
+        border: solid 2px #fef9c8;
+        padding: 0.5rem 1rem;
+        width: min(800px,100vw);
+        font-family: "KatalesBroken";
+        font-size: 15px;
+        color: #fef9c8;
+      }
+      form{
+        display: flex;
+        flex-flow: column wrap;
+        justify-content: center;
+        align-items: center;
+      }
+      textarea::placeholder {
+        font-family: "KatalesBroken";
+        font-size: 20px;
+        padding: 0.5rem;
+        opacity: 0.5;
+        color: #fef9c8;
+      }
+      button{
+        background-color: #fef9c8;
+        width: 100px;
+        padding: 0.5rem 1rem;
+        border: solid 2px #fef9c8;
+        border-radius: 5px;
+        font-size: 15px;
+        font-family:"KatalesBroken" ;
+        color: #ed401c;
+        margin: 1rem 1rem;
+      }
+      button:hover{
+        transition: 0.2s;
+        transform: rotate(5deg) scale(2);
+        box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+      }
+      .comment-list {
+        width: 100%;
+        max-width: 900px;
+        margin: 12px auto 18px;
+      }
+
+      .comment-item {
+        border: 2px solid rgba(255,255,255,0.25);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+      }
+
+      .comment-content {
+        margin: 0;
+        font-size: 20px;
+        white-space: pre-wrap;
+      }
+
+      .comment-meta {
+        margin: 8px;
+        font-size: 12px;
+        opacity: 0.8;
+      }
+
+      .comment-empty {
+        opacity: 0.85;
+      }
+
+  </style>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  
+  const supabase = createClient(
+    'https://xarsycpiqgviqkxyodbv.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhcnN5Y3BpcWd2aXFreHlvZGJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NDk5NDksImV4cCI6MjA4MzAyNTk0OX0.Oppyl8Oz3RrPAHdjjZkGV8SX-m1GdGOgga9KqPRNySI' 
+  );
+
+  window.addEventListener("DOMContentLoaded", async () => {
+
+    const form = document.querySelector(".comment-form");
+    if (!form) return;
+
+    const textarea = form.querySelector('textarea[name="content"]');
+    const postId = Number(form.dataset.postId);
+
+    const hintEl = document.getElementById("comment-hint");
+    const loginLink = document.getElementById("login-link");
+
+    const refreshUI = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+
+        if (hintEl) hintEl.innerText = "Login required to comment.";
+        if (loginLink) {
+          const next = encodeURIComponent(window.location.pathname);
+          loginLink.href = `/login?next=${next}`;
+          loginLink.style.display = "inline-block";
+        }
+      } else {
+
+        if (hintEl) hintEl.innerText = "Leave a comment:";
+        if (loginLink) loginLink.style.display = "none";
+      }
+    };
+
+    await refreshUI();
+
+ 
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        const next = encodeURIComponent(window.location.pathname);
+        window.location.href = `/login?next=${next}`;
+        return;
+      }
+
+      const content = (textarea?.value || "").trim();
+      if (!content) return;
+
+      const { error } = await supabase.from("comments").insert({
+        post_id: postId,
+        user_id: session.user.id,
+        content,
+      });
+
+      if (error) {
+        console.error("comment insert error:", error);
+        alert("Comment failed: " + error.message);
+        return;
+      }
+
+      alert("You have watered the Chilli Plant !");
+      form.reset();
+
+    });
+
+    supabase.auth.onAuthStateChange(() => {
+      refreshUI();
+    });
+  });
+</script>

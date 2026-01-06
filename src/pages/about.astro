@@ -1,0 +1,30 @@
+---
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout title="SpicyLahhh | Story">
+    <div id="about">
+        <h1>Our Story</h1>
+            <div id="paragraph">
+                <p class="fade">SpicyLahhh is a Dublin-based chilli brand specialising in authentic Malaysian sambal, created to bring the bold flavours of Malaysia to an international audience. It was founded by Elin, who was living abroad since 18. SpicyLahhh began as a response to the lack of authentic Southeast Asian flavours overseas. After years of studying and living outside Malaysia, access to quality sambal became limited. What started as a personal solution soon evolved into a carefully developed product.</p>
+                <p class="fade">SpicyLahhh was inspired by traditional family recipes and childhood memories—particularly the sambal once prepared for the founder’s grandmother. It is built on the idea of preserving heritage while adapting it for modern lifestyles. Extensive research and product testing led to a refined recipe that balances authenticity, quality, and consistency.The brand initially serves the Malaysian community in Dublin, fulfilling a strong demand for familiar home flavours. As the market grows, SpicyLahhh aims to introduce Malaysian sambal to a wider audience, positioning it as a versatile condiment that complements both Asian and Western cuisines.</p>
+                <p class="fade">With a focus on quality ingredients, small-batch production, and cultural storytelling, SpicyLahhh represents more than just chilli, but a bridge between tradition and global food culture, bringing the taste of home to wherever you are.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <style>
+        .fade{
+			opacity: 0;
+			transform: translateY(10px);
+			animation: fadeIn 1.5s ease forwards;
+		}
+		@keyframes fadeIn {
+  		to {
+			opacity: 1;
+    		transform: translateY(0);
+  		}
+		}
+    </style>
+</Layout>

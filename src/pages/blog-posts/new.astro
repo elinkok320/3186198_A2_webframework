@@ -1,0 +1,165 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { supabase } from "../../lib/supabaseAuth.js";
+
+let errorMsg = "";
+---
+
+<Layout title="Write a Chilli Post">
+
+  <div class="new-page">
+    <div class="new-page-content">
+        <h1>Create Chilli Post</h1>
+        <img src="/chilli-2.JPG">
+
+        {errorMsg && <p class="error">{errorMsg}</p>}
+
+        <form class="post-form">
+            <input name="title" class="input-content" placeholder="Chilli Title" required />
+            <textarea name="excerpt" class="input-content" placeholder="Summary" required></textarea>
+            <textarea name="content" class="input-content" placeholder="Write your chilli post..." required></textarea>
+            <button type="submit">Post</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    
+    .new-page{
+        max-width: 100%;
+        margin:0;
+        background-color: #ed401c;
+        padding:0px;
+        color: #fef9c8;
+        text-align: justify;
+        display: flex;
+        flex-flow: column wrap;
+        justify-content: center;
+        align-items: center;
+    }
+    .new-page-content h1{
+        text-shadow:2px 2px 4px rgba(0,0,0,0.4);
+        font-size: 55px;
+        margin-bottom: 10px;
+    }
+    .new-page-content{
+        margin-bottom: 2rem;
+        display: flex;
+        flex-flow: column wrap;
+        justify-content: center;
+        align-items: center;
+
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeIn 2s ease forwards;
+    }
+        @keyframes fadeIn {
+            to {
+            opacity: 1;
+            transform: translateY(0);
+            }
+    }
+    img{
+        width: min(500px,100%);
+        margin-bottom:2rem; 
+        border-radius: 5px;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.35);
+    }
+    .post-form{
+        display: flex;
+        flex-flow: column wrap;
+        justify-content: center;
+        align-items: center;
+        width: (800px,100%);
+        gap: 1rem;
+      }
+    .input-content{
+        background-color: #fef9c8;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        border: solid 4px #375c66;
+        max-width: 100%;
+        min-width: 500px;
+        font-size: 15px;
+        font-family: "KatalesBroken";
+        color: #ed401c;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.35);
+    }
+    .input-content:hover{
+        transform: scale(1.05); 
+        transition: 0.5s;
+        box-shadow: -2px -2px 10px rgba(0,0,0,0.35);
+    }
+    button{
+        background-color: #fef9c8;
+        width: 100px;
+        padding: 0.5rem 1rem;
+        border: solid 2px #fef9c8;
+        border-radius: 5px;
+        font-size: 15px;
+        font-family:"KatalesBroken" ;
+        color: #ed401c;
+        margin-bottom: 1rem;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.35)
+      }
+      button:hover{
+        transition: 0.2s;
+        transform: rotate(5deg) scale(2);
+        box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+        border: solid 2px #375c66;
+      }
+</style>
+
+</Layout>
+
+<script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const SUPABASE_URL = 'https://xarsycpiqgviqkxyodbv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhcnN5Y3BpcWd2aXFreHlvZGJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NDk5NDksImV4cCI6MjA4MzAyNTk0OX0.Oppyl8Oz3RrPAHdjjZkGV8SX-m1GdGOgga9KqPRNySI';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const form = document.querySelector(".post-form");
+    const errorMsgEl = document.getElementById("error-msg");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        window.location.href = "/login?returnTo=/blog-posts/new";
+        return;
+      }
+
+      const formData = new FormData(form);
+      const title = formData.get("title")?.toString().trim();
+      const excerpt = formData.get("excerpt")?.toString().trim();
+      const content = formData.get("content")?.toString().trim();
+
+      if (!title || !excerpt || !content) {
+        errorMsgEl.textContent = "Please fill in all fields";
+        errorMsgEl.style.display = "block";
+        return;
+      }
+
+      const { error } = await supabase
+        .from("post_blog")
+        .insert([{ 
+          title, 
+          excerpt, 
+          content, 
+          date: new Date().toISOString().slice(0,10),
+          user_id: user.id
+        }]);
+
+      if (error) {
+        errorMsgEl.textContent = error.message;
+        errorMsgEl.style.display = "block";
+        return;
+      }
+
+      alert("Chilli post created !");
+      window.location.href = "/blog";
+    });
+</script>

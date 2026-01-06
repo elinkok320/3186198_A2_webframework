@@ -1,11 +1,99 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import { supabase } from "../lib/supabaseAuth.js";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const { data: posts, error } = await supabase
+  .from("post_blog")
+  .select("id, title, excerpt, date")
+  .order("date", { ascending: false })  
+  .limit(5);  
+
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="SpicyLahhh">
+	<div id="homepage">
+		<div class="homepage-content">
+			<img src="chilli-1.jpg">
+			<a href="/about"><h1 class="fade">Malaysian Style <br>Chilli Sauce</h1></a>
+		</div>
+	</div>
+
+	<section class="home-blog">
+		<h2><a href="/blog" id="latest-post-title">Latest Chili Post</a></h2>
+
+		{error && <p>Failed to load posts</p>}
+
+		{posts?.map((post) => (
+		<article class="post-preview">
+			<h2><a href={`/blog-posts/${post.id}`}>{post.title}</a></h2>
+			<p>{post.excerpt}</p>
+		</article>
+		))}
+	</section>
+
+
+<style>
+	.fade{
+		opacity: 0;
+		transform: translateY(20px);
+		animation: fadeIn 2s ease forwards;
+		}
+
+	@keyframes fadeIn {
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	}
+
+	.home-blog{
+		margin:0;
+		padding: 2rem 3rem;
+		background-color: #fef9c8;
+		display: flex;
+		flex-flow: column wrap;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.home-blog h2 a{
+		font-size: 25px;
+		text-decoration: none;
+		color: #ed401c;
+		margin-bottom: 0;
+		padding-bottom: 0;
+	}
+	#latest-post-title:hover{
+		transition: 0.8s;
+		color: #ed401c;
+		text-shadow: 1px 1px 1px rgba(0,0,0,0.25);
+	}
+	.post-preview h2:hover{
+		transition: 0.8s;
+		transform: rotate(4deg) scale(1.2);
+	}
+	#latest-post-title{
+		font-size: 80px;
+		text-decoration: none;
+		color: #375c66;
+		margin: 0;
+		padding: 0;
+		text-shadow: -1px -1px 1px rgba(0,0,0,0.25);
+	}
+
+	.post-preview{
+		display: flex;
+		flex-flow: column wrap;
+		justify-content: center;
+		align-items: center;
+		gap: 0;
+	}
+	.post-preview p{
+		margin-top: 0;
+		padding-top: 0;
+		color: #375c66;
+		font-size: 18px;
+	}
+
+</style>
 </Layout>
